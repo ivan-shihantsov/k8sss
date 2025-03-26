@@ -1,0 +1,275 @@
+
+$ pacman -Ss minikube
+extra/minikube 1.31.2-1 [installed]
+    A tool that makes it easy to run Kubernetes locally
+
+$ pacman -Ss kubeadm
+extra/kubeadm 1.28.1-1 (kubernetes-tools)
+    A tool for quickly installing Kubernetes and setting up a secure cluster
+
+$ pacman -Ss kubectl
+extra/cmctl 1.11.1-1 (kubectl-plugins)
+    Automatically provision and manage TLS certificates in Kubernetes
+extra/kubectl 1.28.1-1 (kubernetes-tools)
+    A command line tool for communicating with a Kubernetes API server
+extra/kubectl-cert-manager 1.11.1-1 (kubectl-plugins)
+    Automatically provision and manage TLS certificates in Kubernetes
+extra/kubectl-ingress-nginx 1.0.4-2 (kubectl-plugins)
+    kubectl plugin for managing NGINX Ingress Controller for Kubernetes
+extra/kubectx 0.9.4-1
+    Utility to manage and switch between kubectl contexts and Kubernetes namespaces
+
+$ pacman -Ss kubelet
+extra/kubelet 1.28.1-1 (kubernetes-control-plane kubernetes-node)
+    An agent that runs on each node in a Kubernetes cluster making sure that containers are running in a Pod
+
+$ pacman -Ss ingress
+extra/kubectl-ingress-nginx 1.0.4-2 (kubectl-plugins)
+    kubectl plugin for managing NGINX Ingress Controller for Kubernetes
+
+я видел инструкцию установки - https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/
+    sudo apt-get install -y kubelet kubeadm kubectl
+это какой-то аналог minikube
+
+
+root       31437  7.6  0.2 11213952 45348 ?      Ssl  02:10   0:02 etcd 
+    --advertise-client-urls=https://192.168.49.2:2379 --cert-file=/var/lib/minikube/certs/etcd/server.crt --client-cert-auth=true --data-dir=/var/lib/minikube/etcd 
+    --experimental-initial-corrupt-check=true --experimental-watch-progress-notify-interval=5s --initial-advertise-peer-urls=https://192.168.49.2:2380 
+    --initial-cluster=minikube=https://192.168.49.2:2380 --key-file=/var/lib/minikube/certs/etcd/server.key --listen-client-urls=https://127.0.0.1:2379,https://192.168.49.2:2379 
+    --listen-metrics-urls=http://127.0.0.1:2381 --listen-peer-urls=https://192.168.49.2:2380 --name=minikube --peer-cert-file=/var/lib/minikube/certs/etcd/peer.crt --peer-client-cert-auth=true 
+    --peer-key-file=/var/lib/minikube/certs/etcd/peer.key --peer-trusted-ca-file=/var/lib/minikube/certs/etcd/ca.crt --proxy-refresh-interval=70000 --snapshot-count=10000 
+    --trusted-ca-file=/var/lib/minikube/certs/etcd/ca.crt
+
+root       31452 20.9  2.1 1033412 347640 ?      Ssl  02:10   0:05 kube-apiserver 
+    --advertise-address=192.168.49.2 --allow-privileged=true --authorization-mode=Node,RBAC --client-ca-file=/var/lib/minikube/certs/ca.crt --enable-bootstrap-token-auth=true 
+    --enable-admission-plugins=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,DefaultTolerationSeconds,NodeRestriction,MutatingAdmissionWebhook,ValidatingAdmissionWebhook,ResourceQuota 
+    --etcd-cafile=/var/lib/minikube/certs/etcd/ca.crt --etcd-certfile=/var/lib/minikube/certs/apiserver-etcd-client.crt --etcd-keyfile=/var/lib/minikube/certs/apiserver-etcd-client.key 
+    --etcd-servers=https://127.0.0.1:2379 --kubelet-client-certificate=/var/lib/minikube/certs/apiserver-kubelet-client.crt --kubelet-client-key=/var/lib/minikube/certs/apiserver-kubelet-client.key 
+    --kubelet-preferred-address-types=InternalIP,ExternalIP,Hostname --proxy-client-cert-file=/var/lib/minikube/certs/front-proxy-client.crt 
+    --proxy-client-key-file=/var/lib/minikube/certs/front-proxy-client.key --requestheader-allowed-names=front-proxy-client --requestheader-client-ca-file=/var/lib/minikube/certs/front-proxy-ca.crt 
+    --requestheader-extra-headers-prefix=X-Remote-Extra- --requestheader-group-headers=X-Remote-Group --requestheader-username-headers=X-Remote-User --secure-port=8443 
+    --service-account-issuer=https://kubernetes.default.svc.cluster.local --service-account-key-file=/var/lib/minikube/certs/sa.pub --service-account-signing-key-file=/var/lib/minikube/certs/sa.key 
+    --service-cluster-ip-range=10.96.0.0/12 --tls-cert-file=/var/lib/minikube/certs/apiserver.crt --tls-private-key-file=/var/lib/minikube/certs/apiserver.key
+
+root       31461  4.8  0.6 819756 102824 ?       Ssl  02:10   0:01 kube-controller-manager 
+    --allocate-node-cidrs=true --authentication-kubeconfig=/etc/kubernetes/controller-manager.conf --authorization-kubeconfig=/etc/kubernetes/controller-manager.conf --bind-address=127.0.0.1 
+    --client-ca-file=/var/lib/minikube/certs/ca.crt --cluster-cidr=10.244.0.0/16 --cluster-name=mk --cluster-signing-cert-file=/var/lib/minikube/certs/ca.crt 
+    --cluster-signing-key-file=/var/lib/minikube/certs/ca.key --controllers=*,bootstrapsigner,tokencleaner --kubeconfig=/etc/kubernetes/controller-manager.conf --leader-elect=false 
+    --requestheader-client-ca-file=/var/lib/minikube/certs/front-proxy-ca.crt --root-ca-file=/var/lib/minikube/certs/ca.crt --service-account-private-key-file=/var/lib/minikube/certs/sa.key 
+    --service-cluster-ip-range=10.96.0.0/12 --use-service-account-credentials=true
+
+root       31631  4.2  0.6 1705252 98500 ?       Ssl  02:10   0:00 /var/lib/minikube/binaries/v1.27.4/kubelet 
+    --bootstrap-kubeconfig=/etc/kubernetes/bootstrap-kubelet.conf --config=/var/lib/kubelet/config.yaml --container-runtime-endpoint=unix:///var/run/cri-dockerd.sock 
+    --hostname-override=minikube --kubeconfig=/etc/kubernetes/kubelet.conf --node-ip=192.168.49.2
+
+root       32269  1.7  0.3 765116 49900 ?        Ssl  02:10   0:00 /usr/local/bin/kube-proxy 
+    --config=/var/lib/kube-proxy/config.conf --hostname-override=minikube
+
+waka       32458  0.0  0.0   6980  2576 pts/0    S+   02:10   0:00 grep --colour=auto -i mini
+
+
+
+k8s page [ Deploy and Access the Kubernetes Dashboard ]
+    https://kubernetes.io/docs/tasks/access-application-cluster/web-ui-dashboard/
+proxy page
+    http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
+
+
+minikube kubectl  -- create serviceaccount user1 -n kubernetes-dashboard
+serviceaccount/user1 created
+
+minikube kubectl  -- create clusterrolebinding user1 -n kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kubernetes-dashboard:user1
+clusterrolebinding.rbac.authorization.k8s.io/user1 created
+
+minikube kubectl -- proxy
+http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/service?namespace=default
+
+minikube kubectl -- -n kubernetes-dashboard create token user1
+eyJhbGciOiJSUzI1NiIsImtpZCI6Ikc0aTRUZXhlUzBpalpNWW1PZUtfOTl2ZU1taFV3aG8yWU0zV01RVExpRU0ifQ.eyJhdWQiOlsiaHR0cHM6Ly9rdWJlcm5ldGVzLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWwiXSwiZXhwIjoxNjk1NTEyOTYxLCJpYXQiOjE2OTU1MDkzNjEsImlzcyI6Imh0dHBzOi8va3ViZXJuZXRlcy5kZWZhdWx0LnN2Yy5jbHVzdGVyLmxvY2FsIiwia3ViZXJuZXRlcy5pbyI6eyJuYW1lc3BhY2UiOiJrdWJlcm5ldGVzLWRhc2hib2FyZCIsInNlcnZpY2VhY2NvdW50Ijp7Im5hbWUiOiJ1c2VyMSIsInVpZCI6ImQ4MjUzOTE1LTJmNjItNGMzMC04MDQyLTU4OTFjYWUyMWU1MiJ9fSwibmJmIjoxNjk1NTA5MzYxLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6a3ViZXJuZXRlcy1kYXNoYm9hcmQ6dXNlcjEifQ.ZAmQxifB4yW1mvMz_wUTJOIXxXKVw1G1UG6cczJ0Q-O7jUgXeXbsEPzF3i-jFO85-_LZY_-I3wStlHQYtwxsEJkr8DFwILr0Bq6OYxMcNNMUYaQgvt9E89dC_7z8xx-P2B4Oqx0KUooq8ys8MkPMFgKZRH00rriAHyttC8X2BGvvriYS8S2Sy-ECjEggg_AaqkWk8yT1akjunaX3qqQs0XL-J70K47dQZU46WmTK0k-tg1giWEO47MNKqm5LGyBOYGGt4y19MotNSrn3gJyuV2IsAnsFFybvdoPgkZZplfyIgl9W63q6h0Ov3yfeL6Pnnp9Hwl5q30gKLKQrXhmthw
+
+
+
+
+=======================================
+заметки по .yaml-файлам
+
+обязательные поля любого .yaml
+apiVersion:
+kind:
+metadata:
+spec:
+
+namespace - изоляция между проектами/фирмами/клиентами
+    namespace не спасет от неправильного трафика - надо будет создать объект network policy
+    и создать user-а с правами на отдельный namespace
+
+Type: NodePort предназначен для всего, что не http/https (т.е. для SMTP, FTP)
+    для http/https есть Ingress
+Ingress
+    получает извне https и делает ssl termination (пропускает внутрь кластера голый http)
+    умеет распределять трафик по имени внутри GET-запроса (name-based virtual hosting)
+
+    # minikube addons enable ingress
+    его надо вручную устанавливать (в minikube - включать addon)
+    изначально в кубере есть common контроллеры service, deployment (запускаются к каждому отдельному .yml-сервису и тд) 
+    ... но не ingress - там пиши .yml (kind: Ingress) - он не запустится
+
+
+Selector
+    2 types of selectors: equality-based and set-based
+
+equality-based (=,==,!=)
+    environment = production
+    tier != frontend
+
+если в POD это labels (==define)
+    labels:
+        app: my_app
+        tier: frontend
+то в deployment это matchLabels и они совпадают (хоть и приходится повторяться)
+    matchLabels:
+        app: my_app
+        tier: frontend
+или matchExpressions:
+        - { key: tier, operator: In, values: [cache] }
+        - { key: environment, operator: NotIn, values: [dev] }
+
+
+kubectl get pods -l environment=production,tier=frontend
+    ==
+kubectl get pods -l 'environment in (production),tier in (frontend)'
+    # это уже set-based + operator
+
+    # IN / NOTIN
+kubectl get pods -l 'environment in (production, qa)'
+    OR
+kubectl get pods -l 'environment,environment notin (frontend)'
+
+
+порты (service)
+spec:
+  ports:
+    - name: mysql-port
+        port: 3306          это порт который торчит наружу из контейнера (== внешний порт сервиса - для других сервисов) - во внутреннюю сеть кластера
+        targetPort: 3306    порт внутри контейнера (== docker -p port:targetPort)
+        protocol: TCP
+        nodePort: 32066     внешний порт кластера (на хосте)
+
+
+
+создать несколько контейнеров в POD-е можно через
+  template:
+    metadata:
+      labels:
+        app: multi-app
+    spec:
+      containers:
+        - name: myapp-nginx
+          image: nginx:1.19.8-alpine
+          ports:
+          - containerPort: 3001
+            protocol: TCP
+        - name: myapp-wp
+          image: wordpress:5.7.0-php8.0-fpm
+          ports:
+          - containerPort: 3002
+            protocol: TCP
+        - name: myapp-db
+          image: mysql:5.7
+          ports:
+          - containerPort: 3002
+            protocol: TCP
+вот это уже по сути аналог docker-compose
+
+
+если я пишу
+    spec:
+        containers:
+        - image: ssporyshev/bar:v2
+            name: kube-bar-app
+            ports:
+            - containerPort: 3002
+            protocol: TCP
+            volumeMounts:
+            - mountPath: /var/lib/mysql
+                name: DB-storage
+        volumes:
+        - name: DB-storage
+            hostPath:
+                path: /mnt/usb-flash/client1/mysql
+                type: Directory
+то создается обычный docker volume, который коннектится к обычному диску или флешке (как пример)
+    и этот volume на уровне всего POD-а - он виден всем контейнерам внутри
+
+
+проверка что контейнер жив (критерий перезапуска)
+    livenessProbe:
+        tcpSocket:
+            port: 3306
+если он не отвечает на этом порту, будет перезапущен
+
+
+    обязательные компоненты deployment
+apiVersion: 
+kind: 
+metadata:
+  name: 
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+
+  template:
+    metadata:
+      labels:
+        app: kube-bar-app
+    spec:
+      containers:
+        - name: kube-bar-app
+          image: ssporyshev/bar:v2
+          ports:
+          - containerPort: 3002
+            protocol: TCP
+
+template - это шаблон нижестоящего POD-а (в deployment)
+в POD тоже есть
+        metadata:
+            ...
+    и
+        spec:
+            ...
+    это описание
+
+
+replicaset(api: appv/v1) пришел на замену replication controller (api: v1)
+    почти одно и то же. отличия:
+        replicaset явно указывает template pod-а и кол-во replicas: 5
+
+у replicaset и deployment одинаковые манифесты. отличия:
+    deployment включает в себя replicaset организационно
+    но не включает в себя replicaset в манифесте - deployment включает там pod (template)
+
+=======================================
+        заметки по командам kubectl
+
+kubectl get pods -A -l app=kube-bar-app
+    получение подов по селектору в ручном режиме, как это делает service автоматом 
+
+kubectl delete -k ./
+kubectl apply -k ./
+    применить все .yml-файлы, но в папке должен быть также kustomization.yml
+
+
+
+
+=======================================
+        заметки по RBAC
+
+создать юзера
+    subject type: users/organizations/service account
+    namespace
+    role (объекты + действия) - даже если выбрать админ всего кластера, это все равно в пределах его namespace
+        похоже роль надо создавать заранее
+
+
+
