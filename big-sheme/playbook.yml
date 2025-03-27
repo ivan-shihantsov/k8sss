@@ -1,0 +1,20 @@
+- name: prepare machines
+  hosts: all_groups
+  tasks:
+  - name: ping task
+    ping:
+
+- name: update hosts files
+  hosts: all_groups
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+    - name: Add IP address of all hosts to all hosts
+      lineinfile:
+        dest: /etc/hosts
+        regexp: '.*{{ item }}$'
+        line: "{{ hostvars[item].ansible_host }} {{item}}"
+        state: present
+      when: hostvars[item].ansible_host is defined
+      with_items: "{{ groups.all }}"
