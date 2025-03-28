@@ -10,7 +10,7 @@
   vars:
     ansible_become_password: "123"
   tasks:
-    - name: Add IP address of all hosts to all hosts
+    - name: Add IP address of all hosts to all hosts (sudo)
       lineinfile:
         dest: /etc/hosts
         regexp: '.*{{ item }}$'
@@ -18,3 +18,57 @@
         state: present
       when: hostvars[item].ansible_host is defined
       with_items: "{{ groups.all }}"
+
+- name: Disable swap & Add kernel Parameters - on all nodes
+  hosts: all_groups
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+    - name: disable swap (sudo)
+      shell: swapoff -a
+    - name: remove swap from fstab (sudo)
+      shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    - name: Create a directory for kernel modules
+      ansible.builtin.file:
+        path: /etc/modules-load.d
+        state: directory
+        mode: '0755'
+    - name: create containerd.conf to load modules
+      ansible.builtin.file:
+        path: /etc/modules-load.d/containerd.conf
+        state: touch
+        mode: u=rw,g=r,o=r
+    - name: Set up the IPV4 bridge
+      shell: echo 'overlay\nbr_netfilter' > /etc/modules-load.d/containerd.conf
+    - name: Load the needed kernel modules (sudo)
+      shell: modprobe -a overlay br_netfilter
+    - name: Touch a file
+      ansible.builtin.file:
+        path: /etc/sysctl.d/kubernetes.conf
+        state: touch
+        mode: u=rw,g=r,o=r
+    - name: change Kernel parameters
+      shell: echo 'net.bridge.bridge-nf-call-ip6tables = 1\nnet.bridge.bridge-nf-call-iptables = 1\nnet.ipv4.ip_forward = 1' > /etc/sysctl.d/kubernetes.conf
+    - name: Reload the Kernel parameters (sudo)
+      shell: sysctl --system
+    - name: install containerd dependencies (sudo)
+      ansible.builtin.apt:
+        pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+    - name: install containerd part 1 (sudo)
+      shell: "{{ item }}"
+      with_items:
+        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
+        - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    - name: apt update (sudo)
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: install containerd part 2 (sudo)
+      ansible.builtin.apt:
+        name: containerd.io
+        state: present
+
