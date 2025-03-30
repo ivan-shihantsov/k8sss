@@ -1,0 +1,8 @@
+- name: prepare machines
+  hosts: k8s
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+    - name: Unconditionally shut down the machine with all defaults
+      community.general.shutdown:

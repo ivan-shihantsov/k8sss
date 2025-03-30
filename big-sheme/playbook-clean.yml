@@ -1,0 +1,46 @@
+- name: prepare machines
+  hosts: all_groups
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+  - name: Unhold kubelet
+    ansible.builtin.dpkg_selections:
+      name: kubelet
+      selection: install
+  - name: Unhold kubeadm
+    ansible.builtin.dpkg_selections:
+      name: kubeadm
+      selection: install
+  - name: Unhold kubectl
+    ansible.builtin.dpkg_selections:
+      name: kubectl
+      selection: install
+  - name: Remove Kubernetes Tools (sudo)
+    ansible.builtin.apt:
+      pkg:
+      - kubelet
+      - kubeadm
+      - kubectl
+      state: absent
+  - name: remove containerd part 1 (sudo)
+    ansible.builtin.file:
+      path: /etc/apt/sources.list.d/kubernetes.list
+      state: absent
+
+  - name: remove containerd part 1 (sudo)
+    ansible.builtin.file:
+      path: /etc/apt/trusted.gpg.d/docker.gpg
+      state: absent
+  - name: remove containerd config (sudo)
+    ansible.builtin.file:
+      path: /etc/containerd
+      state: absent
+  - name: Remove containerd package (sudo)
+    ansible.builtin.apt:
+      name: containerd.io
+      state: absent
+  - name: remove containerd config (sudo)
+    ansible.builtin.file:
+      path: /etc/apt/keyrings
+      state: absent

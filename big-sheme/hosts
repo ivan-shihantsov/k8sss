@@ -1,13 +1,27 @@
-[group1]
+[k8s_master]
 vm1 ansible_host=192.168.100.101 ansible_user=u1 ansible_password=123
+
+[group1_other]
 vm2 ansible_host=192.168.100.102 ansible_user=u2 ansible_password=123
 vm3 ansible_host=192.168.100.103 ansible_user=u3 ansible_password=123
 vm4 ansible_host=192.168.100.104 ansible_user=u4 ansible_password=123
+
+[group1:children]
+k8s_master
+group1_other
+
+
 
 [group2]
 vm11 ansible_host=192.168.100.111 ansible_user=u11 ansible_password=123
 vm12 ansible_host=192.168.100.112 ansible_user=u12 ansible_password=123
 
-[all_groups:children]
-group1
+[k8s_worker:children]
+group1_other
 group2
+
+
+
+[k8s:children]
+k8s_master
+k8s_worker

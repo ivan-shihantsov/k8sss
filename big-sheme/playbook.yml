@@ -1,11 +1,11 @@
 - name: prepare machines
-  hosts: all_groups
+  hosts: k8s
   tasks:
   - name: ping task
     ping:
 
 - name: update hosts files
-  hosts: all_groups
+  hosts: k8s
   become: yes
   vars:
     ansible_become_password: "123"
@@ -20,35 +20,36 @@
       with_items: "{{ groups.all }}"
 
 - name: Disable swap & Add kernel Parameters - on all nodes
-  hosts: all_groups
+  hosts: k8s
   become: yes
   vars:
     ansible_become_password: "123"
   tasks:
     - name: disable swap (sudo)
-      shell: swapoff -a
+      ansible.builtin.shell: swapoff -a
+      ignore_errors: true
     - name: remove swap from fstab (sudo)
       shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-    - name: Create a directory for kernel modules
+    - name: Create a directory for kernel modules (sudo)
       ansible.builtin.file:
         path: /etc/modules-load.d
         state: directory
         mode: '0755'
-    - name: create containerd.conf to load modules
+    - name: create containerd.conf to load modules (sudo)
       ansible.builtin.file:
         path: /etc/modules-load.d/containerd.conf
         state: touch
         mode: u=rw,g=r,o=r
-    - name: Set up the IPV4 bridge
+    - name: Set up the IPV4 bridge (sudo)
       shell: echo 'overlay\nbr_netfilter' > /etc/modules-load.d/containerd.conf
     - name: Load the needed kernel modules (sudo)
       shell: modprobe -a overlay br_netfilter
-    - name: Touch a file
+    - name: Touch a file (sudo)
       ansible.builtin.file:
         path: /etc/sysctl.d/kubernetes.conf
         state: touch
         mode: u=rw,g=r,o=r
-    - name: change Kernel parameters
+    - name: change Kernel parameters (sudo)
       shell: echo 'net.bridge.bridge-nf-call-ip6tables = 1\nnet.bridge.bridge-nf-call-iptables = 1\nnet.ipv4.ip_forward = 1' > /etc/sysctl.d/kubernetes.conf
     - name: Reload the Kernel parameters (sudo)
       shell: sysctl --system
@@ -59,16 +60,82 @@
         - ca-certificates
         - curl
         - gnupg
-    - name: install containerd part 1 (sudo)
-      shell: "{{ item }}"
-      with_items:
-        - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
-        - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    - name: fetch docker public GPG Signing Key (sudo)
+      shell: curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmour -o /etc/apt/trusted.gpg.d/docker.gpg
+    - name: add docker APT repository (sudo)
+      shell: add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
     - name: apt update (sudo)
       ansible.builtin.apt:
         update_cache: yes
-    - name: install containerd part 2 (sudo)
+    - name: install containerd (sudo)
       ansible.builtin.apt:
         name: containerd.io
         state: present
+    - name: create containerd.conf to load modules (sudo)
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+    - name: Configure containerd so that it starts using systemd as cgroup (sudo)
+      shell: containerd config default | tee /etc/containerd/config.toml >/dev/null 2>&1
+    - name: part 2 (sudo)
+      shell: sed -i 's/SystemdCgroup \= false/SystemdCgroup \= true/g' /etc/containerd/config.toml
+    - name: Restart and enable containerd service (sudo)
+      ansible.builtin.service:
+        name: containerd
+        enabled: yes
+        state: restarted
 
+- name: K8S prepare - on all nodes
+  hosts: k8s
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+    - name: download public signing key & add Kubernetes repository - part 1 (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+    - name: fetch K8S public GPG Signing Key (sudo)
+      shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32.3/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    - name: add K8S repository (sudo)
+      shell: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32.3/deb/ /' | tee /etc/apt/sources.list.d/kubernetes.list
+    - name: apt update(sudo)
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: Install Kubernetes Tools (sudo)
+      ansible.builtin.apt:
+        pkg:
+        - kubelet
+        - kubeadm
+        - kubectl
+    - name: Mark the packages as held back to prevent automatic installation, upgrade, or removal (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubelet
+        selection: hold
+    - name: Mark the packages as held back to prevent automatic installation, upgrade, or removal (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubeadm
+        selection: hold
+    - name: Mark the packages as held back to prevent automatic installation, upgrade, or removal (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubectl
+        selection: hold
+    - name: enable kubelet (sudo)
+      ansible.builtin.service:
+        name: kubelet
+        enabled: yes
+
+- name: K8S install
+  hosts: k8s
+  become: yes
+  vars:
+    ansible_become_password: "123"
+  tasks:
+    - name: Initialize Kubernetes master (only on master node)
+      when: "'k8s_master' in group_names"
+      ansible.builtin.command:
+        cmd: "kubeadm init --pod-network-cidr=192.168.0.0/16"
+      register: kubeadm_init_output
+      failed_when: "'error' in kubeadm_init_output.stderr"
