@@ -1,4 +1,4 @@
-- name: prepare machines
+- name: poweroff all working vms
   hosts: k8s
   become: yes
   vars:
