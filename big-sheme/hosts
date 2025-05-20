@@ -1,20 +1,44 @@
 [k8s_master]
-vm1 ansible_host=192.168.100.101 ansible_user=u1 ansible_password=123
+vm1 ansible_host=192.168.100.101 ansible_user=u1
 
 [group1_other]
-vm2 ansible_host=192.168.100.102 ansible_user=u2 ansible_password=123
-vm3 ansible_host=192.168.100.103 ansible_user=u3 ansible_password=123
-vm4 ansible_host=192.168.100.104 ansible_user=u4 ansible_password=123
+vm2 ansible_host=192.168.100.102 ansible_user=u2
+vm3 ansible_host=192.168.100.103 ansible_user=u3
+vm4 ansible_host=192.168.100.104 ansible_user=u4
 
+# mini-pc powerful
 [group1:children]
 k8s_master
 group1_other
 
+[group1_host]
+host1 ansible_host=192.168.100.100 ansible_user=user1
 
 
+
+# mini-pc lite
 [group2]
-vm11 ansible_host=192.168.100.111 ansible_user=u11 ansible_password=123
-vm12 ansible_host=192.168.100.112 ansible_user=u12 ansible_password=123
+vm11 ansible_host=192.168.100.111 ansible_user=u11
+vm12 ansible_host=192.168.100.112 ansible_user=u12
+
+[group2_host]
+host2 ansible_host=192.168.100.110 ansible_user=uha
+
+
+
+# my asus laptop
+[group3]
+vm21 ansible_host=192.168.100.121 ansible_user=u21
+vm22 ansible_host=192.168.100.122 ansible_user=u22
+
+
+
+# lenovo sam laptop
+[group4]
+vm31 ansible_host=192.168.100.131 ansible_user=u31
+vm32 ansible_host=192.168.100.132 ansible_user=u32
+
+
 
 [k8s_worker:children]
 group1_other
@@ -25,3 +49,10 @@ group2
 [k8s:children]
 k8s_master
 k8s_worker
+
+
+
+[real_hosts:children]
+group1_host
+group2_host
+

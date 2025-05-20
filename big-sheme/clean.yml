@@ -1,0 +1,116 @@
+---
+- name: clean entire installation
+  hosts: k8s
+  become: yes
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
+    - name: Stop Kubelet (sudo)
+      ansible.builtin.command:
+        cmd: "systemctl stop kubelet"
+      ignore_errors: true
+    - name: Reset the previous K8S installation (sudo)
+      ansible.builtin.command:
+        cmd: "kubeadm reset -f"
+      ignore_errors: true
+
+    - name: remove kubernetes configs (sudo)
+      ansible.builtin.file:
+        path: /etc/kubernetes
+        state: absent
+    - name: remove kubernetes Directories part 1 (sudo)
+      ansible.builtin.file:
+        path: /var/lib/etcd
+        state: absent
+    - name: remove kubernetes Directories part 2 (sudo)
+      ansible.builtin.file:
+        path: /var/lib/kubelet
+        state: absent
+    - name: remove kubernetes Directories part 3 (sudo)
+      ansible.builtin.file:
+        path: /var/lib/dockershim
+        state: absent
+    - name: remove kubernetes Directories part 4 (sudo)
+      ansible.builtin.file:
+        path: /var/run/kubernetes
+        state: absent
+
+    - name: Remove the CNI configs part 1 (sudo)
+      ansible.builtin.file:
+        path: /var/lib/cni
+        state: absent
+    - name: Remove the CNI configs part 2 (sudo)
+      ansible.builtin.file:
+        path: /etc/cni
+        state: absent
+    - name: remove dir with k8s config - master only (sudo)
+      when: "'k8s_master' in group_names"
+      ansible.builtin.file:
+        path: "/home/{{ ansible_user }}/.kube"
+        state: absent
+
+    - name: Unhold kubelet (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubelet
+        selection: install
+      ignore_errors: true
+    - name: Unhold kubeadm (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubeadm
+        selection: install
+      ignore_errors: true
+    - name: Unhold kubectl (sudo)
+      ansible.builtin.dpkg_selections:
+        name: kubectl
+        selection: install
+      ignore_errors: true
+    - name: disable kubelet (sudo)
+      ansible.builtin.service:
+        name: kubelet
+        enabled: no
+      ignore_errors: true
+
+    - name: Remove Kubernetes Tools (sudo)
+      ansible.builtin.apt:
+        pkg:
+        - kubelet
+        - kubeadm
+        - kubectl
+        state: absent
+    - name: remove K8S repository (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/kubernetes.list
+        state: absent
+    - name: remove containerd config (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: absent
+
+    - name: remove containerd config dir (sudo)
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: absent
+    - name: Uninstall containerd package (sudo)
+      ansible.builtin.apt:
+        name: containerd.io
+        state: absent
+
+    - name: remove docker public GPG Signing Key (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/trusted.gpg.d/docker.gpg
+        state: absent
+    - name: remove APT repo (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/docker.list
+        state: absent
+
+    - name: uninstall containerd dependencies (sudo)
+      ansible.builtin.apt:
+        pkg:
+        - apt-transport-https
+        - ca-certificates
+        - curl
+        - gnupg
+        - software-properties-common
+        state: absent
+      register: stop_execution

@@ -70,7 +70,17 @@
 
 запуск
 ```
-# ansible-playbook -i hosts playbook.yml
+# ansible-playbook install.yml --vault-password-file .vault_key
+```
+
+Запуск не сначала
+```
+# ansible-playbook -vv --start-at-task "Task number 3" install.yml
+```
+
+пошаговое выполнение ansible playbook
+```
+# ansible-playbook install.yml --step
 ```
 
 ======================

@@ -1,3 +1,4 @@
+---
 - name: check machines availability
   hosts: k8s
   become: no
@@ -13,7 +14,7 @@
   tags:
     - vmprep
   vars:
-    ansible_become_password: "123"
+    ansible_become_password: "{{ansible_password}}"
   tasks:
     - name: Add IP address of all hosts to all hosts (sudo)
       lineinfile:
@@ -60,7 +61,7 @@
   tags:
     - dockerinst
   vars:
-    ansible_become_password: "123"
+    ansible_become_password: "{{ansible_password}}"
   tasks:
     - name: install containerd dependencies (sudo)
       ansible.builtin.apt:
@@ -104,7 +105,7 @@
   tags:
     - k8stools
   vars:
-    ansible_become_password: "123"
+    ansible_become_password: "{{ansible_password}}"
   tasks:
     - name: add Kubernetes APT repo (sudo)
       ansible.builtin.file:
@@ -112,7 +113,7 @@
         state: directory
         mode: '0755'
     - name: fetch K8S public GPG Signing Key (sudo)
-      shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+      shell: curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.32/deb/Release.key | gpg --dearmour -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
     - name: add K8S APT repo (sudo)
       shell: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
 
@@ -147,12 +148,8 @@
   hosts: k8s
   become: yes
   vars:
-    ansible_become_password: "123"
+    ansible_become_password: "{{ansible_password}}"
   tasks:
-    - name: Reset the previous K8S installation - on master (sudo)
-      when: "'k8s_master' in group_names"
-      ansible.builtin.command:
-        cmd: "kubeadm reset -f"
     - name: Init K8S control plane (sudo)
       when: "'k8s_master' in group_names"
       ansible.builtin.command:
@@ -186,16 +183,12 @@
       ansible.builtin.shell: "kubeadm token create --print-join-command"
       register: join_output
 
-    - name: remove CNI config dir (sudo)
-      ansible.builtin.file:
-        path: /etc/cni/net.d/
-        state: absent
-
-    - name: Reset the previous K8S installation - on workers (sudo)
-      when: "'k8s_worker' in group_names"
-      ansible.builtin.command:
-        cmd: "kubeadm reset -f"
+- name: Join K8S worker nodes to the Control Plane
+  hosts: k8s_worker
+  become: yes
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
     - name: Join worker nodes to the cluster (sudo)
-      when: "'k8s_worker' in group_names"
       ansible.builtin.shell: "{{ hostvars[groups['k8s_master'].0]['join_output']['stdout'] }}"
 
