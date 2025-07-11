@@ -9,6 +9,8 @@
     * в режиме network bridge - получают собственный IP
 * в результате в рабочей схеме остаются только виртуалки
 
+![do not forget to update pic when update the scheme file](res/k8s_scheme.png "initial scheme of k8s setup") <br>
+
 #### Questions
 * применим ли тут ansible?
     * сначала кажется, что нет или не полностью
