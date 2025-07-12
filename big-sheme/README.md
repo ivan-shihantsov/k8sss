@@ -80,6 +80,11 @@
 # ansible-playbook -vv --start-at-task "Task number 3" install.yml
 ```
 
+Либо запуск только определенного Play (по тэгу)
+```
+ansible-playbook clean.yml --tags k8s_cluster_del, k8s_tools_del
+```
+
 пошаговое выполнение ansible playbook
 ```
 # ansible-playbook install.yml --step
