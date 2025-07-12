@@ -23,13 +23,13 @@
         line: "{{ hostvars[item].ansible_host }} {{item}}"
         state: present
       when: hostvars[item].ansible_host is defined
-      with_items: "{{ groups.all }}"
+      with_items: "{{ groups.k8s }}"
 
     - name: disable swap (sudo)
       ansible.builtin.shell: swapoff -a
       ignore_errors: true
-    - name: remove swap from fstab (sudo)
-      shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+    #- name: remove swap from fstab (sudo)
+    #  shell: sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
 
     - name: Create a directory for kernel modules (sudo)
       ansible.builtin.file:
@@ -55,14 +55,17 @@
     - name: Reload the Kernel parameters (sudo)
       shell: sysctl --system
 
-- name: Install docker and containerd - on all nodes
+- name: Install containerd - on all nodes
   hosts: k8s
   become: yes
   tags:
-    - dockerinst
+    - containerd_inst
   vars:
     ansible_become_password: "{{ansible_password}}"
   tasks:
+    - name: apt update before containerd deps (sudo)
+      ansible.builtin.apt:
+        update_cache: yes
     - name: install containerd dependencies (sudo)
       ansible.builtin.apt:
         pkg:
@@ -77,7 +80,7 @@
     - name: add docker APT repository (sudo)
       shell: add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
-    - name: apt update (sudo)
+    - name: apt update before install containerd (sudo)
       ansible.builtin.apt:
         update_cache: yes
     - name: install containerd (sudo)
@@ -103,7 +106,7 @@
   hosts: k8s
   become: yes
   tags:
-    - k8stools
+    - k8s_tools_inst
   vars:
     ansible_become_password: "{{ansible_password}}"
   tasks:
@@ -117,7 +120,7 @@
     - name: add K8S APT repo (sudo)
       shell: echo 'deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.32/deb/ /' > /etc/apt/sources.list.d/kubernetes.list
 
-    - name: apt update(sudo)
+    - name: apt update before install K8s tools (sudo)
       ansible.builtin.apt:
         update_cache: yes
     - name: Install Kubernetes Tools (sudo)
@@ -144,9 +147,11 @@
         name: kubelet
         enabled: yes
 
-- name: Start K8S cluster
+- name: Start K8S Control Node
   hosts: k8s
   become: yes
+  tags:
+    - k8s_cluster_inst
   vars:
     ansible_become_password: "{{ansible_password}}"
   tasks:
@@ -154,6 +159,8 @@
       when: "'k8s_master' in group_names"
       ansible.builtin.command:
         cmd: "kubeadm init --control-plane-endpoint={{ ansible_default_ipv4.address }}:6443 --pod-network-cidr=10.10.0.0/16"
+      register: kubeadm_init_output
+      failed_when: "'error' in kubeadm_init_output.stderr"
     - name: create dir for k8s config (sudo)
       when: "'k8s_master' in group_names"
       ansible.builtin.file:
