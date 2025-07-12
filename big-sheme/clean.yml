@@ -1,7 +1,9 @@
 ---
-- name: clean entire installation
+- name: Destroy K8S cluster (Stop and clean Control Node & worker nodes)
   hosts: k8s
   become: yes
+  tags:
+    - k8s_cluster_del
   vars:
     ansible_become_password: "{{ansible_password}}"
   tasks:
@@ -49,6 +51,15 @@
         path: "/home/{{ ansible_user }}/.kube"
         state: absent
 
+
+- name: Remove K8S tools from VMs
+  hosts: k8s
+  become: yes
+  tags:
+    - k8s_tools_del
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
     - name: Unhold kubelet (sudo)
       ansible.builtin.dpkg_selections:
         name: kubelet
@@ -77,15 +88,30 @@
         - kubeadm
         - kubectl
         state: absent
-    - name: remove K8S repository (sudo)
+    - name: apt update after K8s tools del (sudo)
+      ansible.builtin.apt:
+        update_cache: yes
+    - name: remove K8S APT repo (sudo)
       ansible.builtin.file:
         path: /etc/apt/sources.list.d/kubernetes.list
+        state: absent
+    - name: remove K8S public GPG Signing Key (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
         state: absent
     - name: remove containerd config (sudo)
       ansible.builtin.file:
         path: /etc/apt/keyrings
         state: absent
 
+- name: remove containerd
+  hosts: k8s
+  become: yes
+  tags:
+    - containerd_del
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
     - name: remove containerd config dir (sudo)
       ansible.builtin.file:
         path: /etc/containerd
@@ -94,14 +120,21 @@
       ansible.builtin.apt:
         name: containerd.io
         state: absent
+    - name: apt update after containerd del (sudo)
+      ansible.builtin.apt:
+        update_cache: yes
 
     - name: remove docker public GPG Signing Key (sudo)
       ansible.builtin.file:
         path: /etc/apt/trusted.gpg.d/docker.gpg
         state: absent
-    - name: remove APT repo (sudo)
+    - name: remove docker APT repo 1 (sudo)
       ansible.builtin.file:
         path: /etc/apt/sources.list.d/docker.list
+        state: absent
+    - name: remove docker APT repo 2 (sudo)
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/archive_uri-https_download_docker_com_linux_ubuntu-noble.list
         state: absent
 
     - name: uninstall containerd dependencies (sudo)
@@ -113,4 +146,6 @@
         - gnupg
         - software-properties-common
         state: absent
-      register: stop_execution
+    - name: apt update after containerd deps del (sudo)
+      ansible.builtin.apt:
+        update_cache: yes
