@@ -72,12 +72,12 @@
 
 запуск
 ```
-# ansible-playbook install.yml --vault-password-file .vault_key
+# ansible-playbook install.yml
 ```
 
 Запуск не сначала
 ```
-# ansible-playbook -vv --start-at-task "Task number 3" install.yml
+# ansible-playbook -vv --start-at-task "Install containerd - on all nodes" install.yml
 ```
 
 Либо запуск только определенного Play (по тэгу)
@@ -89,8 +89,4 @@ ansible-playbook clean.yml --tags k8s_cluster_del, k8s_tools_del
 ```
 # ansible-playbook install.yml --step
 ```
-
-======================
-#### что делает ansible
-* append /etc/hosts
 
