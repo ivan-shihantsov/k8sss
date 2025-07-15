@@ -1,5 +1,5 @@
 # K8S clusters - configs
 
 Contents:
-* [big-sheme](big-sheme/)
-    * multiple virtual machines in local network - for testing app at home
+* [Install Kubernetes cluster (1 master - multiple workers) with kubeadm](big-sheme/)
+

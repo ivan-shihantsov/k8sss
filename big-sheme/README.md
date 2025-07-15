@@ -1,4 +1,4 @@
-# complex Kubernetes scheme
+# Install Kubernetes cluster (1 master - multiple workers) with kubeadm
 
 установка K8S в home network (LAN)
 
