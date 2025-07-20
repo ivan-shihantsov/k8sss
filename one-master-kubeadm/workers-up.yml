@@ -1,4 +1,12 @@
 ---
+- name: start all worker vms - group0
+  hosts: group0_host
+  become: no
+  tasks:
+    - name: Start all vms in group0
+      shell: vboxmanage startvm "{{item}}" --type headless && sleep 20
+      loop: "{{ groups['group0'] }}"
+
 - name: start all worker vms - group1
   hosts: group1_host
   become: no
@@ -14,3 +22,12 @@
     - name: Start all vms in group2
       shell: vboxmanage startvm "{{item}}" --type headless && sleep 20
       loop: "{{ groups['group2'] }}"
+
+- name: start all worker vms - group3
+  hosts: group3_host
+  become: no
+  tasks:
+    - name: Start all vms in group3
+      shell: vboxmanage startvm "{{item}}" --type headless && sleep 20
+      loop: "{{ groups['group3'] }}"
+

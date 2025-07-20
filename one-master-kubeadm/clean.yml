@@ -46,7 +46,7 @@
         path: /etc/cni
         state: absent
     - name: remove dir with k8s config - master only (sudo)
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/.kube"
         state: absent

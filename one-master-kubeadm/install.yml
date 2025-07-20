@@ -156,13 +156,13 @@
     ansible_become_password: "{{ansible_password}}"
   tasks:
     - name: Init K8S control plane (sudo)
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       ansible.builtin.command:
         cmd: "kubeadm init --control-plane-endpoint={{ ansible_default_ipv4.address }}:6443 --pod-network-cidr=10.10.0.0/16"
       register: kubeadm_init_output
       failed_when: "'error' in kubeadm_init_output.stderr"
     - name: create dir for k8s config (sudo)
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/.kube"
         state: directory
@@ -170,32 +170,33 @@
         group: "{{ ansible_user }}"
         mode: '0755'
     - name: Set up kubeconfig for regular user (sudo)
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       shell: "cp /etc/kubernetes/admin.conf /home/{{ ansible_user }}/.kube/config"
     - name: Change kubeconfig permissions (sudo)
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       ansible.builtin.file:
         path: "/home/{{ ansible_user }}/.kube/config"
         owner: "{{ ansible_user }}"
         group: "{{ ansible_user }}"
         mode: '0644'
     - name: Install Calico Network Plugin - CNI
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       become: no
       ansible.builtin.command:
         cmd: "kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml"
     - name: generate a new join token
-      when: "'k8s_master' in group_names"
+      when: "'k8s_masters' in group_names"
       become: no
       ansible.builtin.shell: "kubeadm token create --print-join-command"
       register: join_output
 
 - name: Join K8S worker nodes to the Control Plane
-  hosts: k8s_worker
+  hosts: k8s_workers
   become: yes
   vars:
     ansible_become_password: "{{ansible_password}}"
   tasks:
     - name: Join worker nodes to the cluster (sudo)
-      ansible.builtin.shell: "{{ hostvars[groups['k8s_master'].0]['join_output']['stdout'] }}"
+      ansible.builtin.shell: "{{ hostvars[groups['k8s_masters'].0]['join_output']['stdout'] }}"
+      #ansible.builtin.shell: "{{ hostvars[groups['group0_masters'].0]['join_output']['stdout'] }}"
 

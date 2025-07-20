@@ -1,4 +1,4 @@
-# Install Kubernetes cluster (1 master - multiple workers) with kubeadm
+# Install Kubernetes cluster (One master - multiple workers) with kubeadm
 
 Установка K8S в home network (LAN). Схема "One master - multiple workers" - используется одна Control Node. <br>
 Установка с помощью kubeadm и DIY ansible playbooks <br>
@@ -22,7 +22,7 @@
 
 
 #### Warning
-Из-за ручной настройки (DIY ansible playbook) данный проект воспроизводится в сторго указанных рамках. Обновление K8s, ubuntu, смена ubuntu на debian, смена версий Python или Ansible в pip requirements - все это приведет к поломке и придется вносить небольшие правки. <br>
+Из-за ручной настройки (DIY ansible playbook) данный проект воспроизводится в строго указанных рамках. Обновление K8s, ubuntu, смена ubuntu на debian, смена версий Python или Ansible в pip requirements - все это приведет к поломке и придется вносить небольшие правки. <br>
 Проект является учебной демонстрацией структуры и взаимосвязи компонентов K8s, абстрагирования кластера от уровня виртуальных машин <br>
 НО: даже сейчас это не **Kubernetes The Hard Way** - полностью ручной способ установки кластера. Мы используем kubeadm, который частично автоматизирует настройку виртуальных Nodes и из связывание в K8s кластер.<br>
 
@@ -37,13 +37,13 @@
 * sudo systemctl enable ssh
 * sudo systemctl restart ssh
 
-
-#### Prepare Python virtual env with ansible
-
 создать файл hosts и добавить туда все установленные виртуалки
 ```
 # touch hosts
 ```
+
+
+#### Prepare Python virtual env with ansible
 
 ```# git clone <this repo>
 # cd k8sss/one-master-kubeadm            # enter working directory
