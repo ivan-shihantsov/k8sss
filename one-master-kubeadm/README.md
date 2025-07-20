@@ -1,20 +1,30 @@
 # Install Kubernetes cluster (1 master - multiple workers) with kubeadm
 
-установка K8S в home network (LAN)
+Установка K8S в home network (LAN). Схема "One master - multiple workers" - используется одна Control Node. <br>
+Установка с помощью kubeadm и DIY ansible playbooks <br>
+
 
 #### Setup
-* несколько (2-3) реальных машин. они служат для запуска вирталок и далее их во внимание не берем
+* несколько физических машин (2-5). они служат для запуска вирталок и далее мы абстрагируемся от них
+    * ubuntu 24.04 LTS
+    * устанавливаются вручную
+    * есть вариант автоматической установки: Ubuntu Server (.iso image + autoinstall.yaml) или Debian (cloud .qcow2 image)
+    * к ним есть доступ по ssh - это ansible slaves первого уровня (Virtualization Layer)
 * по несколько одинаковых виртуалок на каждой реальной машине
     * ubuntu 24.04 LTS
     * в режиме network bridge - получают собственный IP
-* в результате в рабочей схеме остаются только виртуалки
+    * к ним есть доступ по ssh - это ansible slaves второго уровня (K8s cluster)
+* ansible (11.8.0) - python pip
+* kubernetes (v1.32)
+
 
 ![do not forget to update pic when update the scheme file](res/k8s_scheme.png "initial scheme of k8s setup") <br>
 
 
-#### Technologies
-* ansible
-* kubernetes
+#### Warning
+Из-за ручной настройки (DIY ansible playbook) данный проект воспроизводится в сторго указанных рамках. Обновление K8s, ubuntu, смена ubuntu на debian, смена версий Python или Ansible в pip requirements - все это приведет к поломке и придется вносить небольшие правки. <br>
+Проект является учебной демонстрацией структуры и взаимосвязи компонентов K8s, абстрагирования кластера от уровня виртуальных машин <br>
+НО: даже сейчас это не **Kubernetes The Hard Way** - полностью ручной способ установки кластера. Мы используем kubeadm, который частично автоматизирует настройку виртуальных Nodes и из связывание в K8s кластер.<br>
 
 
 #### Prepare VMs
@@ -30,25 +40,19 @@
 
 #### Prepare Python virtual env with ansible
 
-```# git clone <this repo>
-# cd k8sss/one-master-kubeadm
----
-# python3 -m venv venv
-# . ./venv/bin/activate
-# python3 -m pip install --upgrade pip
-# pip install ansible
-```
-
 создать файл hosts и добавить туда все установленные виртуалки
 ```
 # touch hosts
 ```
 
-#### Start Ansible playbooks
-
-запуск
-```
-# ansible-playbook install.yml
+```# git clone <this repo>
+# cd k8sss/one-master-kubeadm            # enter working directory
+---
+# python3 -m venv venv                   # # # create Python virtual env (only on first launch)
+# . venv/bin/activate                    # enter to the python virtual env
+# python3 -m pip install --upgrade pip   # # # upgrade pip (only on first launch)
+# pip install -r requirements.txt        # # # install project requirements (only on first launch)
+# ansible-playbook install.yml           # start Ansible playbooks
 ```
 
 Запуск не сначала
