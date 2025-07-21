@@ -1,0 +1,13 @@
+---
+- name: Copy ssh key to all K8s nodes
+  hosts: k8s
+  become: true
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
+    - name: Copy ssh key to all K8s nodes
+      authorized_key:
+        user: "{{ ansible_user }}"
+        state: present
+        key: "{{ lookup('file', '/home/waka/.ssh/key-2-k8s-machines.pub') }}"
+

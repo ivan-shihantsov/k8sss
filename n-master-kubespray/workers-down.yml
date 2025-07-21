@@ -1,0 +1,8 @@
+---
+- name: poweroff all working vms
+  hosts: k8s
+  become: yes
+  vars:
+    ansible_become_password: "{{ansible_password}}"
+  tasks:
+    - community.general.shutdown:
