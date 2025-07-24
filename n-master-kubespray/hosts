@@ -1,0 +1,100 @@
+
+# mini-pc powerful
+[group0_masters]
+vm01 ansible_host=192.168.100.101 ansible_user=u01
+
+[group0_workers]
+vm02 ansible_host=192.168.100.102 ansible_user=u02
+vm03 ansible_host=192.168.100.103 ansible_user=u03
+vm04 ansible_host=192.168.100.104 ansible_user=u04
+
+[group0:children]
+group0_masters
+group0_workers
+
+[group0_host]
+host0 ansible_host=192.168.100.100 ansible_user=user1
+
+
+
+# mini-pc lite
+[group1_masters]
+vm11 ansible_host=192.168.100.111 ansible_user=u11
+
+[group1_workers]
+vm12 ansible_host=192.168.100.112 ansible_user=u12
+vm13 ansible_host=192.168.100.113 ansible_user=u13
+
+[group1:children]
+group1_masters
+group1_workers
+
+[group1_host]
+host1 ansible_host=192.168.100.110 ansible_user=uha
+
+
+
+# asus laptop
+[group2_masters]
+vm21 ansible_host=192.168.100.121 ansible_user=u21
+
+[group2_workers]
+vm22 ansible_host=192.168.100.122 ansible_user=u22
+vm23 ansible_host=192.168.100.123 ansible_user=u23
+vm24 ansible_host=192.168.100.124 ansible_user=u24
+
+[group2:children]
+group2_masters
+group2_workers
+
+[group2_host]
+host2 ansible_host=192.168.100.120 ansible_user=user2
+
+
+
+# lenovo laptop
+[group3_masters]
+vm31 ansible_host=192.168.100.131 ansible_user=u31
+
+[group3_workers]
+vm32 ansible_host=192.168.100.132 ansible_user=u32
+vm33 ansible_host=192.168.100.133 ansible_user=u33
+vm34 ansible_host=192.168.100.134 ansible_user=u34
+
+[group3:children]
+group3_masters
+group3_workers
+
+[group3_host]
+host3 ansible_host=192.168.100.130 ansible_user=qa
+
+
+
+[k8s_masters:children]
+group0_masters
+group1_masters
+group2_masters
+group3_masters
+
+
+
+[k8s_workers:children]
+group0_workers
+group1_workers
+group2_workers
+group3_workers
+
+
+
+[k8s:children]
+k8s_masters
+k8s_workers
+
+
+
+[real_hosts:children]
+group0_host
+group1_host
+group2_host
+group3_host
+

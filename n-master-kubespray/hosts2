@@ -1,0 +1,60 @@
+
+vm01 ansible_host=192.168.100.101 ansible_user=u01 ip=10.3.0.101
+vm02 ansible_host=192.168.100.102 ansible_user=u02 ip=10.3.0.102
+vm03 ansible_host=192.168.100.103 ansible_user=u03 ip=10.3.0.103
+vm04 ansible_host=192.168.100.104 ansible_user=u04 ip=10.3.0.104
+
+# ---
+
+vm11 ansible_host=192.168.100.111 ansible_user=u11 ip=10.3.0.111
+vm12 ansible_host=192.168.100.112 ansible_user=u12 ip=10.3.0.112
+vm13 ansible_host=192.168.100.113 ansible_user=u13 ip=10.3.0.113
+
+# ---
+
+vm21 ansible_host=192.168.100.121 ansible_user=u21 ip=10.3.0.121
+vm22 ansible_host=192.168.100.122 ansible_user=u22 ip=10.3.0.122
+vm23 ansible_host=192.168.100.123 ansible_user=u23 ip=10.3.0.123
+vm24 ansible_host=192.168.100.124 ansible_user=u24 ip=10.3.0.124
+
+# ---
+
+vm31 ansible_host=192.168.100.131 ansible_user=u31 ip=10.3.0.131
+vm32 ansible_host=192.168.100.132 ansible_user=u32 ip=10.3.0.132
+vm33 ansible_host=192.168.100.133 ansible_user=u33 ip=10.3.0.133
+vm34 ansible_host=192.168.100.134 ansible_user=u34 ip=10.3.0.134
+
+
+
+[kube_control_plane]
+vm01
+vm11
+vm21
+vm31
+
+
+
+[etcd]
+vm01
+vm11
+vm21
+vm31
+
+
+
+[kube_node]
+vm02
+vm03
+vm04
+# ---
+vm12
+vm13
+# ---
+vm22
+vm23
+vm24
+# ---
+vm32
+vm33
+vm34
+

@@ -28,10 +28,10 @@
 # git clone <this repo>
 # cd k8sss/n-master-kubespray               # enter working directory
 ---
-# python3 -m venv venv                      # # # create Python virtual env (only on first launch)
+# python3 -m venv venv                      # # # create own Python virtual env (only on first launch)
 # . venv/bin/activate                       # enter to the python virtual env
 # python3 -m pip install --upgrade pip      # # # upgrade pip (only on first launch)
-# pip install -r requirements.txt           # # # install project requirements (only on first launch)
+# pip install -r requirements.txt           # # # install our project requirements (only on first launch)
 ```
 
 настройка виртуальных машин: static IP + manual DNS server 208.67.222.222
@@ -48,6 +48,7 @@
 ...
 # ssh-keygen -t ed25519 -f ~/.ssh/key-2-k8s-machines -q -N ""       # create ssh key for all K8s nodes (only on first launch)
 # ansible-playbook prepare-ssh-key.yml                              # copy ssh key to all K8s nodes (only on first launch)
+# ansible-playbook workers-up.yml                                   # every time when you turn on physical hosts
 # deactivate                                                        # leave my own python virtual env
 ```
 
@@ -56,16 +57,24 @@
 #### Prepare Python virtual env with ansible
 ```
 # git clone https://github.com/kubernetes-sigs/kubespray.git
-# cp hosts2 ./kubespray/inventory/hosts
+# cp hosts2 ./kubespray/inventory/hosts                             # copy prepared inventory file from own repo
 # cd kubespray
 # git checkout v2.28.0
 ---
-# python3 -m venv venv                                              # # # create Python virtual env (only on first launch)
-# . venv/bin/activate                                               # enter to the python virtual env
-# python3 -m pip install --upgrade pip                              # # # upgrade pip (only on first launch)
-# pip install -r requirements.txt                                   # # # install project requirements (only on first launch)
+# VENVDIR=kubespray-venv
+# KUBESPRAYDIR=kubespray
+# python3 -m venv $VENVDIR                                          # # # create Python virtual env for kubespray (only on first launch)
+# source $VENVDIR/bin/activate                                      # enter to the python virtual env
+# cd $KUBESPRAYDIR
+# pip install -U -r requirements.txt                                # # # install kubespray project requirements (only on first launch)
 ---
-# ansible-playbook -i /inventory/hosts --private-key ~/.ssh/key-2-k8s-machines cluster.yml
+# ansible-playbook -i inventory/hosts --private-key ~/.ssh/key-2-k8s-machines --become --extra-vars "ansible_become_password=123" cluster.yml
 ```
 
+For my setup it will take about 1 hour <br>
+
+Now login on Control Plane:
+```
+kubectl get nodes
+```
 
