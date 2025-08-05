@@ -1,6 +1,0 @@
-app_bar/node_modules
-app_foo/node_modules
-.idea
-app_bar/.idea
-app_foo/.idea
-kube/.idea

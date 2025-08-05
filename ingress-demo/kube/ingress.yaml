@@ -1,4 +1,3 @@
-# maybe ... apiVersion: extensions/v1
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -6,26 +5,25 @@ metadata:
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/rewrite-target: "/"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
+  ingressClassName: nginx
   rules:
-  - host: foo.bar.com
-    http:
+  - http:
       paths:
-      - pathType: Prefix
-        path: "/foo"
+      - path: /foo
+        pathType: Prefix
         backend:
           service:
             name: kube-foo-svc
             port:
               number: 80
-  - host:
-    http:
-      paths:
-      - pathType: Prefix
-        path: "/bar"
+      - path: /bar
+        pathType: Prefix
         backend:
           service:
             name: kube-bar-svc
             port:
               number: 80
+

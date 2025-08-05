@@ -4,9 +4,11 @@ metadata:
   name: kube-foo-svc
   namespace: default
 spec:
+  type: ClusterIP
   selector:
     app: kube-foo-app
   ports:
     - port: 80
       targetPort: 3001
       protocol: TCP
+

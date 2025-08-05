@@ -1,3 +1,0 @@
-docker build -t bar:v1 .
-
-docker run -p 3002:3002 -d bar:v1

@@ -1,10 +1,10 @@
-FROM node:10.11
+FROM node:22.18
 
 COPY ./ /usr/src/app
 
 WORKDIR /usr/src/app
 
-RUN  npm install
+RUN npm install
 
 EXPOSE 3002
 
