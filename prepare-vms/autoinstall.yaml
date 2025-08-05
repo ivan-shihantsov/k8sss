@@ -1,0 +1,12 @@
+autoinstall:
+  version: 1
+  identity:
+    realname: "Frank"
+    username: user1
+    password: "$6$eJOE1mXSU1KDK1lO$.QAZbDoBbBop2tVsqtJ7NItqFIQvt0fWeMx/jcexZBzAVQ4YHgCAriZVg33r07/yK60Mi0THR1mJScRJr7EtM0"
+    hostname: ubuntu
+  network:
+    version: 2
+    ethernets:
+      ens18:
+        dhcp4: true

@@ -1,0 +1,21 @@
+
+# prepare
+# home router: static IP assigned for each machine
+# надо ли закреплять в /etc/hosts на control node - если это прописано в inventory ansibl'а
+# sshd OR openssh-server installed
+
+---------------------
+# ssh user@machine
+
+# check if exist ~/Downloads/ubuntu-24.04-desktop-amd64.iso
+# download from $site to ~/Downloads/
+
+sudo apt update
+sudo apt upgrade
+apt install virtualbox
+
+# vboxmanage list vms
+# vboxmanage list runningvms
+
+VBoxManage createvm --name "Ubuntu 20.04" --ostype Ubuntu_64 --register
+

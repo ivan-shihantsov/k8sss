@@ -1,0 +1,30 @@
+autoinstall:
+  version: 1
+
+  # Prompt for user configuration on first boot.  Remove this identity
+  # section and see the "Installation without a default user" section.
+  identity:
+    realname: "Frank"
+    username: user1
+    # Get password hash: `mkpasswd --method=SHA-512 '<password>'` - password: "password"
+    password: "$6$eJOE1mXSU1KDK1lO$.QAZbDoBbBop2tVsqtJ7NItqFIQvt0fWeMx/jcexZBzAVQ4YHgCAriZVg33r07/yK60Mi0THR1mJScRJr7EtM0"
+    hostname: ubuntu
+
+  timezone: "CET"
+  locale: "en_US"
+
+  # This adds the default ubuntu-desktop packages to the system.
+  # Any desired additional packages may also be listed here.
+  packages:
+    - ubuntu-desktop
+    - openssh-server
+
+  storage:
+    layout:
+      name: direct
+
+  ssh:
+    install-server: yes
+    authorized-keys:
+      - $key
+    allow-pw: no
