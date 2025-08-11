@@ -8,8 +8,8 @@ spec:
   selector:
     app: kube-foo-app
   ports:
-    - port: 80
-      targetPort: 3001
+    - port: 3001
+      targetPort: 8001
       nodePort: 32001
       protocol: TCP
 

@@ -8,8 +8,8 @@ spec:
   selector:
     app: kube-bar-app
   ports:
-    - port: 80
-      targetPort: 3002
+    - port: 3002
+      targetPort: 8001
       nodePort: 32002
       protocol: TCP
 
