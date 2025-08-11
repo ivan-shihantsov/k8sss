@@ -1,20 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: kube-foo-app
+  name: kube-bar-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: kube-foo-app
+      app: kube-bar-app
   template:
     metadata:
       labels:
-        app: kube-foo-app
+        app: kube-bar-app
     spec:
       containers:
-        - name: kube-foo-app
-          image: ssporyshev/foo:v2
+        - name: kube-bar-app
+          image: hostick/bar:v1
           ports:
-          - containerPort: 3001
+          - containerPort: 3002
             protocol: TCP
+
