@@ -1,0 +1,10 @@
+replicaCount: 1
+
+image:
+  repository: hostick/foo
+  tag: "v1"
+
+kube-foo-app:
+  replicaCount: 3
+  image: hostick/foo:v1
+
