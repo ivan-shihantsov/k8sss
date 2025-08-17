@@ -20,4 +20,11 @@ spec:
           ports:
           - containerPort: {{ .Values.contPort }}
             protocol: TCP
+          env:
+          - name: NODE_IP
+            valueFrom:
+              fieldRef:
+                fieldPath: status.hostIP
+          - name: HELM_VER
+            value: "{{ .Release.Revision }}"
 

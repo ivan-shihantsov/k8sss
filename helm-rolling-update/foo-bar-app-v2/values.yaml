@@ -1,6 +1,6 @@
 
 container:
-  image: hostick/foo:v1
+  image: hostick/foo:v2
 
 replicaCount: 3
 
