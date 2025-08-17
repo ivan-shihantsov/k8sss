@@ -1,4 +1,4 @@
-# Simple Ingress demo
+# Multi-app Ingress
 
 
 ### local app test
@@ -19,7 +19,7 @@ repeat the same for app `bar` and open on port 3002 <br>
 
 ```
 git clone <my-repo>
-cd ingress-demo
+cd multi-app-ingress
 # run app foo
 kubectl apply -f foo/deployment.yaml
 kubectl apply -f foo/svc-nodeport.yaml
@@ -49,7 +49,7 @@ repeat the same for `app-bar` and open on port 32002<br>
 
 ```
 git clone <my-repo>
-cd ingress-demo
+cd multi-app-ingress
 kubectl apply -f foo/deployment.yaml
 kubectl apply -f foo/service.yaml
 kubectl apply -f bar/deployment.yaml
